@@ -1,14 +1,12 @@
-import json
 import os
 import uuid
 from datetime import datetime, timezone
-from pathlib import Path
 
 from flask import Flask, jsonify, render_template
 
-app = Flask(__name__)
-deployment_file = Path(__file__).with_name('deployment_info.json')
-DEPLOYMENT_INFO = json.loads(deployment_file.read_text()) if deployment_file.exists() else {}
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+app = Flask(__name__, template_folder=os.path.join(BASE_DIR, 'templates'))
 
 # Dibuat sekali per instance fungsi untuk pengamatan stateless pada modul.
 ID_INSTANCE = uuid.uuid4().hex[:8]
@@ -24,7 +22,7 @@ def beranda():
 def info():
     global jumlah_permintaan
     jumlah_permintaan += 1
-    commit = os.environ.get('VERCEL_GIT_COMMIT_SHA') or os.environ.get('CI_GIT_SHA') or DEPLOYMENT_INFO.get('commit', 'lokal')
+    commit = os.environ.get('VERCEL_GIT_COMMIT_SHA', 'lokal')
     return jsonify(
         layanan='Portal PMB Universitas Teknologi Muhammadiyah',
         versi=os.environ.get('APP_VERSION', 'v1'),
