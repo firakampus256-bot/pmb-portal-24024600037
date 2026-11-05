@@ -1,0 +1,49 @@
+import json
+import os
+import uuid
+from datetime import datetime, timezone
+from pathlib import Path
+
+from flask import Flask, jsonify, render_template
+
+app = Flask(__name__)
+deployment_file = Path(__file__).with_name('deployment_info.json')
+DEPLOYMENT_INFO = json.loads(deployment_file.read_text()) if deployment_file.exists() else {}
+
+# Dibuat sekali per instance fungsi untuk pengamatan stateless pada modul.
+ID_INSTANCE = uuid.uuid4().hex[:8]
+jumlah_permintaan = 0
+
+
+@app.route('/')
+def beranda():
+    return render_template('index.html')
+
+
+@app.route('/api/info')
+def info():
+    global jumlah_permintaan
+    jumlah_permintaan += 1
+    commit = os.environ.get('VERCEL_GIT_COMMIT_SHA') or os.environ.get('CI_GIT_SHA') or DEPLOYMENT_INFO.get('commit', 'lokal')
+    return jsonify(
+        layanan='Portal PMB Universitas Teknologi Muhammadiyah',
+        versi=os.environ.get('APP_VERSION', 'v1'),
+        gelombang=os.environ.get('PMB_GELOMBANG', 'belum diatur'),
+        lingkungan=os.environ.get('VERCEL_ENV', 'lokal'),
+        region=os.environ.get('VERCEL_REGION', 'tidak diketahui'),
+        commit=commit[:7],
+        nama='Andi Syafira',
+        nim='24024600037',
+        id_instance=ID_INSTANCE,
+        permintaan_ke=jumlah_permintaan,
+        waktu_utc=datetime.now(timezone.utc).isoformat(),
+    )
+
+
+@app.route('/health')
+def health():
+    return jsonify(status='ok')
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8000)

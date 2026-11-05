@@ -1,0 +1,42 @@
+# Portal PMB — Praktikum Cloud Computing P06
+
+Nama: Andi Syafira  
+NIM: 24024600037
+
+Aplikasi Flask mengikuti Modul Praktikum Pertemuan 6 dan contoh demonstrasi dosen. Halaman utama berupa HTML sederhana dengan identitas mahasiswa. Informasi JSON dari contoh modul tersedia di `/api/info`.
+
+## Endpoint
+
+- `GET /`: halaman HTML dengan nama, NIM, Health Check, dan API Info.
+- `GET /api/info`: informasi layanan, identitas, versi, gelombang, lingkungan, region, commit, instance, penghitung permintaan, dan waktu UTC.
+- `GET /health`: `{"status":"ok"}`.
+
+## Menjalankan lokal
+
+Gunakan Python 3.13.
+
+```sh
+python -m venv .venv
+# Aktifkan virtual environment sesuai sistem operasi.
+python -m pip install -r requirements.txt
+python app.py
+```
+
+Akses `http://localhost:8000`. Uji otomatis: `python -m unittest -v`.
+
+## Deployment Vercel
+
+Import repositori ini sebagai project baru pada paket Hobby, framework **Flask** terdeteksi otomatis. Berkas `vercel.json` meneruskan semua permintaan ke `api/index.py`, dan `requirements.txt` memasang Flask pada runtime Python 3.13.
+
+Atur environment variables sebelum deploy:
+
+| Variabel | Nilai |
+| --- | --- |
+| `APP_VERSION` | `v1` |
+| `PMB_GELOMBANG` | `Gelombang 1` |
+
+Setelah deployment selesai, uji domain production, `/health`, dan `/api/info`. Pertahankan project sampai selesai dinilai. Jangan memasukkan kredensial ke repositori.
+
+## Catatan pengamatan
+
+`id_instance` dan `permintaan_ke` berada dalam memori proses untuk latihan stateless. Penghitung ini bukan basis data dan tidak boleh digunakan sebagai jumlah pendaftar sebenarnya.
